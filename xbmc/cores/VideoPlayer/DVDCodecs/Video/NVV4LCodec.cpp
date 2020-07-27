@@ -660,7 +660,9 @@ bool CNVV4LBufferPool::Init(struct v4l2_format format, size_t size)
     CLog::Log(LOGERROR, "CNVV4LBufferPool::Init v4l2 buffer request failed: %s", strerror(errno));
     return false;
   }
+
   m_size = req.count;
+  CLog::Log(LOGDEBUG, "CNVV4LBufferPool::Init %d v4l2 buffers allocated", m_size);
 
 
   for (size_t i = m_bufs.size(); i < m_size; ++i)
