@@ -32,6 +32,7 @@
 
 #define VERBOSE 1
 
+
 // copied from NVidia v4l2 extensions
 #ifndef __V4L2_NV_EXTENSIONS_H__
 
@@ -101,12 +102,12 @@ bool NVV4LCodec::OpenDevice()
   output_format.type = V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE;
   output_format.fmt.pix_mp.pixelformat = m_coding_type;
   output_format.fmt.pix_mp.num_planes = 1;
-  output_format.fmt.pix_mp.plane_fmt[0].sizeimage = 5000000;
+  output_format.fmt.pix_mp.plane_fmt[0].sizeimage = BUFFER_SIZE;
 
   m_pool_output = std::make_shared<CNVV4LBufferPool>(device_fd, V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE, V4L2_MEMORY_MMAP); 
   m_pool_capture = std::make_shared<CNVV4LBufferPool>(device_fd, V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE, V4L2_MEMORY_MMAP);
 
-  if (!m_pool_output->Init(output_format, 12)) 
+  if (!m_pool_output->Init(output_format, INPUT_BUFFERS)) 
   {
     CLog::Log(LOGERROR, "NVV4LCodec::Open filed to initalize buffer pool");
     return false;
@@ -472,7 +473,7 @@ void NVV4LCodec::HandleEvent()
 
       StreamOn(V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE);
 
-      m_pool_capture->Init(format, min_buffers + 5);
+      m_pool_capture->Init(format, min_buffers + EXTRA_OUTPUT_BUFFERS);
 
       while (m_pool_capture->HasFreeBuffers())
       {
@@ -953,7 +954,8 @@ bool CNVV4LBuffer::Map()
 
     if (m_data[i] == MAP_FAILED) 
     {
-      CLog::Log(LOGERROR, "CNVV4LBuffer::Map failed to mmap buffer: %s", strerror(errno));
+      CLog::Log(LOGERROR, "CNVV4LBuffer::Map failed to mmap buffer id:%d fd:%d offset:%d : %s", 
+                m_id, m_fd_dma[i], plane.m.mem_offset,  strerror(errno));
       return false;
     }
   }
@@ -974,7 +976,7 @@ bool CNVV4LBuffer::UnMap()
 
       if (v4l2_munmap(m_data[i], plane.length) < 0)
       {
-        CLog::Log(LOGERROR, "CNVV4LBuffer::UnMap failed to unmap buffer: %s", strerror(errno));
+        CLog::Log(LOGERROR, "CNVV4LBuffer::UnMap failed to unmap buffer id:%d: %s", m_id, strerror(errno));
         return false;
       }
 
@@ -1000,7 +1002,7 @@ bool CNVV4LBuffer::Export()
 
     if (v4l2_ioctl(m_device_fd, VIDIOC_EXPBUF, &expbuf) < 0)
     {
-      //CLog::Log(LOGERROR, "CNVV4LBuffer::Export failed to export buffer %s", strerror(errno));
+      CLog::Log(LOGERROR, "CNVV4LBuffer::Export failed to export buffer id:%d : %s", m_id, strerror(errno));
       return false;
     }
 

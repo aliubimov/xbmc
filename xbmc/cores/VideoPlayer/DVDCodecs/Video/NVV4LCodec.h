@@ -26,7 +26,9 @@ namespace KODI {
 namespace NVV4L {
 
 constexpr const int PTS_MAX = 100;
-
+constexpr const int INPUT_BUFFERS = 12;
+constexpr const int EXTRA_OUTPUT_BUFFERS = 5;
+constexpr const size_t BUFFER_SIZE = 5000000;
 
 class CNVV4LBuffer;
 class CNVV4LBufferPool;
