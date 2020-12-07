@@ -19,6 +19,8 @@
 #include "cores/VideoPlayer/Process/X11/ProcessInfoX11.h"
 #include "cores/VideoPlayer/VideoRenderers/LinuxRendererGLES.h"
 #include "cores/VideoPlayer/VideoRenderers/RenderFactory.h"
+#include "cores/VideoPlayer/DVDCodecs/Video/NVV4LCodec.h"
+#include "cores/VideoPlayer/VideoRenderers/HwDecRender/NVRendererGLES.h"
 #include "guilib/DispResource.h"
 #include "threads/SingleLock.h"
 #include "utils/log.h"
@@ -260,6 +262,9 @@ bool CWinSystemX11GLESContext::RefreshGLContext(bool force)
   CDVDFactoryCodec::ClearHWAccels();
   VIDEOPLAYER::CRendererFactory::ClearRenderer();
   CLinuxRendererGLES::Register();
+
+  NVV4L::NVV4LCodec::Register();
+  NVV4L::CNVV4LRenderer::Register();
 
   std::string gli = (getenv("KODI_GL_INTERFACE") != nullptr) ? getenv("KODI_GL_INTERFACE") : "";
 

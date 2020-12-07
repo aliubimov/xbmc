@@ -57,6 +57,10 @@ if("gbm" IN_LIST CORE_PLATFORM_NAME_LC OR "wayland" IN_LIST CORE_PLATFORM_NAME_L
   endif()
 endif()
 
+
+list(APPEND SOURCES NVRendererGLES.cpp)
+list(APPEND HEADEERS NVRendererGLES.h)
+
 # we might want to build on linux systems
 # with ENABLE_VDPAU=OFF and ENABLE_VAAPI=OFF
 if(SOURCES)
